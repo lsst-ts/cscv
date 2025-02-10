@@ -48,3 +48,8 @@ async def get_index(
         application_name=config.name,
     )
     return Index(metadata=metadata)
+
+
+@external_router.get("/hola", summary="Saludo buena tela :)")
+async def get_saludo() -> str:
+    return "holaaa!"
