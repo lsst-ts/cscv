@@ -1,5 +1,6 @@
 """Handlers for the app's external root, ``/cscv/``."""
 
+import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -9,7 +10,8 @@ from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
 from ..config import config
-from ..models import Index
+from ..factory import Factory
+from ..models import CSCVersionsResponseModel, Index
 
 __all__ = ["external_router"]
 
@@ -53,3 +55,21 @@ async def get_index(
 @external_router.get("/hola", summary="Saludo buena tela :)")
 async def get_saludo() -> str:
     return "holaaa!"
+
+
+@external_router.get(
+    "/csc_versions",
+    description="Get all the versions of cscs.",
+    summary="CSC versions",
+)
+async def csc_versions(
+    logger: Annotated[BoundLogger, Depends(logger_dependency)],
+) -> CSCVersionsResponseModel:
+    """GET `/cscv/csc_versions` endpoint."""
+    factory = Factory(logger=logger)
+    service = factory.create_cscv_service()
+    pkg_list = service.get_csc_versions()
+    fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
+    return CSCVersionsResponseModel.from_domain(
+        fetch_datetime=fetch_datetime, pkg_list=pkg_list
+    )
