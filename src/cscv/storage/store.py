@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from structlog.stdlib import BoundLogger
 
 from ..domain.models import CSCInformation
-from .output_storage import OutputParser
+from .output_parser import OutputParser
 
 __all__ = ["Store"]
 

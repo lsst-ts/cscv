@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 from importlib.resources import files
 
 from structlog.stdlib import BoundLogger
@@ -20,7 +19,5 @@ class FakeCommander(Commander):
 
     def get_all_csc_versions(self) -> tuple[str, str]:
         dv = files("cscv.data").joinpath("cycle_rev.env").read_text()
-        time.sleep(5)
         cv = files("cscv.data").joinpath("cycle.env").read_text()
-        time.sleep(5)
         return dv, cv

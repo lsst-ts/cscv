@@ -1,8 +1,6 @@
-"""Handle parsing output from obsenv CLI tool."""
+"""Handle parsing output from cscv CLI tool."""
 
 from __future__ import annotations
-
-import os
 
 from structlog.stdlib import BoundLogger
 
@@ -12,7 +10,7 @@ __all__ = ["OutputParser"]
 
 
 class OutputParser:
-    """Handle parsing output."""
+    """Handle parsing output from cscv CLI tool."""
 
     def __init__(self, *, logger: BoundLogger) -> None:
         self._logger = logger
@@ -20,23 +18,31 @@ class OutputParser:
     def parse_double_pass(
         self, desired: str, current: str
     ) -> list[CSCInformation]:
+        """Parse desired/current key=value strings into CSCInformation."""
+
+        def parse_env_block(text: str) -> dict[str, str]:
+            result = {}
+            for line in text.strip().splitlines():
+                line_clean = line.strip()
+                if not line_clean or line_clean.startswith("#"):
+                    continue
+                if "=" in line_clean:
+                    key, value = line_clean.split("=", maxsplit=1)
+                    result[key.strip()] = value.strip()
+            return result
+
+        desired_map = parse_env_block(desired)
+        current_map = parse_env_block(current)
+
         csc_list = []
-        for line in desired.strip().split(os.linesep)[2:]:
-            name_set, desired_version = line.strip().split()[-2:]
-            name = name_set.rstrip(":")
+        for name, desired_version in desired_map.items():
+            current_version = current_map.get(name, "")
             csc_list.append(
                 CSCInformation(
                     name=name,
                     desired_version=desired_version,
-                    current_version="",
+                    current_version=current_version,
                 )
             )
-
-        for line in current.strip().split(os.linesep)[2:]:
-            name_set, current_version = line.strip().split()[-2:]
-            name = name_set.rstrip(":")
-            item = next((i for i in csc_list if i.name == name), None)
-            if item is not None:
-                item.current_version = current_version
 
         return csc_list
