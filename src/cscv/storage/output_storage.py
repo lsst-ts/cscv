@@ -22,12 +22,12 @@ class OutputParser:
     ) -> list[CSCInformation]:
         csc_list = []
         for line in original.strip().split(os.linesep)[2:]:
-            name_set, required_version = line.strip().split()[-2:]
+            name_set, desired_version = line.strip().split()[-2:]
             name = name_set.rstrip(":")
             csc_list.append(
                 CSCInformation(
                     name=name,
-                    required_version=required_version,
+                    desired_version=desired_version,
                     current_version="",
                 )
             )
