@@ -123,7 +123,9 @@ charset-normalizer==3.4.2 \
     --hash=sha256:fb707f3e15060adf5b7ada797624a6c6e0138e2a26baa089df64c68ee98e040f \
     --hash=sha256:fcbe676a55d7445b22c10967bceaaf0ee69407fbe0ece4d032b6eb8d4565982a \
     --hash=sha256:fdb20a30fe1175ecabed17cbf7812f7b804b8a315a25f24678bcdf120a90077f
-    # via requests
+    # via
+    #   -c requirements/main.txt
+    #   requests
 click==8.1.8 \
     --hash=sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2 \
     --hash=sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a
@@ -489,7 +491,9 @@ pytest-cov==6.1.1 \
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
-    # via scriv
+    # via
+    #   -c requirements/main.txt
+    #   scriv
 scriv==1.7.0 \
     --hash=sha256:7c1a8be6351d03692e5e75784deea0d8f11b2c90f91be18b0fb3a375555b525e \
     --hash=sha256:cbbdb93c40c3a6f9936c5f68035f20335bba871ec60028e43ff21e27441cfd65

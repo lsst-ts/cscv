@@ -20,7 +20,7 @@ class OutputParser:
     ) -> list[CSCInformation]:
         """Parse desired/current key=value strings into CSCInformation."""
 
-        def parse_env_block(text: str) -> dict[str, str]:
+        def parse_version_block(text: str) -> dict[str, str]:
             result = {}
             for line in text.strip().splitlines():
                 line_clean = line.strip()
@@ -31,8 +31,8 @@ class OutputParser:
                     result[key.strip()] = value.strip()
             return result
 
-        desired_map = parse_env_block(desired)
-        current_map = parse_env_block(current)
+        desired_map = parse_version_block(desired)
+        current_map = parse_version_block(current)
 
         csc_list = []
         for name, desired_version in desired_map.items():
