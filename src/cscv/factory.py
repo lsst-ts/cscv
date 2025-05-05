@@ -2,7 +2,9 @@
 
 from structlog.stdlib import BoundLogger
 
+from .config import config
 from .services.cscv_service import CSCVService
+from .storage.cscv_store import CSCVStore
 from .storage.fake_cscv_store import FakeCSCVStore
 from .storage.store import Store
 
@@ -21,4 +23,8 @@ class Factory:
 
     def create_cscv_store(self) -> Store:
         """Create a cscv store."""
-        return FakeCSCVStore(logger=self.logger)
+        """Create an obsenv store."""
+        if config.use_fake_store:
+            return FakeCSCVStore(logger=self.logger)
+        else:
+            return CSCVStore(logger=self.logger)

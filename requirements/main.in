@@ -12,3 +12,4 @@ pydantic>2
 pydantic-settings
 safir>=5
 uvicorn[standard]
+lsst-efd-client==0.12

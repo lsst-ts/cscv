@@ -32,6 +32,15 @@ class Config(BaseSettings):
         description="If set, alerts will be posted to this Slack webhook",
     )
 
+    use_fake_store: bool = Field(
+        False,
+        title="Use fake store",
+        description=(
+            "In place of the real cscv application, use one that"
+            " generates fake data."
+        ),
+    )
+
 
 config = Config()
 """Configuration for cscv."""
