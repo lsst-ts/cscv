@@ -59,7 +59,7 @@ async def get_saludo() -> str:
 
 @external_router.get(
     "/csc_versions",
-    description="Get all the versions of cscs.",
+    description="Get versions of all CSCs.",
     summary="CSC versions",
 )
 async def csc_versions(
@@ -68,8 +68,8 @@ async def csc_versions(
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
-    pkg_list = service.get_csc_versions()
+    csc_list = service.get_csc_versions()
     fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
     return CSCVersionsResponseModel.from_domain(
-        fetch_datetime=fetch_datetime, pkg_list=pkg_list
+        fetch_datetime=fetch_datetime, csc_list=csc_list
     )

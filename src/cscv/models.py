@@ -1,9 +1,17 @@
 """Models for cscv."""
 
+from typing import Self
+
 from pydantic import BaseModel, Field
 from safir.metadata import Metadata as SafirMetadata
 
-__all__ = ["Index"]
+from .domain.models import CSCInformation
+
+__all__ = [
+    "CSCVersions",
+    "CSCVersionsResponseModel",
+    "Index",
+]
 
 
 class Index(BaseModel):
@@ -18,3 +26,66 @@ class Index(BaseModel):
     """
 
     metadata: SafirMetadata = Field(..., title="Package metadata")
+
+
+class CSCVersions(BaseModel):
+    """CSC version information."""
+
+    name: str = Field(..., title="CSC name", description="Name of the CSC.")
+    current_version: str = Field(
+        ...,
+        title="Current version",
+        description="The version the CSC is currently running.",
+    )
+    desired_version: str = Field(
+        ...,
+        title="Desired version",
+        description="The version the CSC is supposed to run.",
+    )
+    is_different: bool = Field(
+        False,
+        title="Version difference.",
+        description=(
+            "Flag to highlight is there is a difference between desired and "
+            "current version."
+        ),
+    )
+
+    @classmethod
+    def from_domain(cls, *, csc_info: CSCInformation) -> Self:
+        """Construct the CSCVersion model from the CSC information."""
+        return cls(
+            name=csc_info.name,
+            desired_version=csc_info.desired_version,
+            current_version=csc_info.current_version,
+            is_different=csc_info.is_different(),
+        )
+
+
+class CSCVersionsResponseModel(BaseModel):
+    """CSC version information."""
+
+    fetch_datetime: str = Field(
+        ...,
+        title="Datetime of fetch",
+        description=(
+            "The datetime ISO formatted string when the CSC versions were "
+            "fetched."
+        ),
+    )
+
+    cscs: list[CSCVersions] = Field(
+        default_factory=list,
+        title="CSC list",
+        description="List of CSC version information objects.",
+    )
+
+    @classmethod
+    def from_domain(
+        cls, *, fetch_datetime: str, csc_list: list[CSCInformation]
+    ) -> Self:
+        """Construct the list of CSCVersions from the CSCInformation."""
+        cscs = [
+            CSCVersions.from_domain(csc_info=csc_info) for csc_info in csc_list
+        ]
+        return cls(fetch_datetime=fetch_datetime, cscs=cscs)

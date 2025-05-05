@@ -1,4 +1,4 @@
-"""Obsenv Manager Service."""
+"""CSC Versions Service."""
 
 from __future__ import annotations
 
@@ -23,6 +23,6 @@ class CSCVService:
         self._logger = logger
         self._cscv_store = cscv_store
 
-    def get_package_versions(self) -> list[CSCInformation]:
-        self._logger.info("Retrive csc versions from store.")
-        return self._cscv_store.get_package_versions()
+    def get_csc_versions(self) -> list[CSCInformation]:
+        self._logger.info("Retrive CSC versions from store.")
+        return self._cscv_store.get_csc_versions()

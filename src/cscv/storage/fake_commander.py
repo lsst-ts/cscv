@@ -19,8 +19,8 @@ class FakeCommander(Commander):
         super().__init__(logger=logger)
 
     def get_all_csc_versions(self) -> tuple[str, str]:
-        ov = files("cscv.data").joinpath("required_versions.out").read_text()
+        dv = files("cscv.data").joinpath("desired_versions.out").read_text()
         time.sleep(5)
-        cv = files("cscvi.data").joinpath("current_versions.out").read_text()
+        cv = files("cscv.data").joinpath("current_versions.out").read_text()
         time.sleep(5)
-        return ov, cv
+        return dv, cv

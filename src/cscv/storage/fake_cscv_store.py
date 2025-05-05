@@ -19,7 +19,5 @@ class FakeCSCVStore(Store):
         self._commander = FakeCommander(logger=logger)
 
     def get_csc_versions(self) -> list[CSCInformation]:
-        fake_rv, fake_cv = self._commander.get_all_csc_versions()
-        return self._parser.parse_double_pass(
-            original=fake_rv, current=fake_cv
-        )
+        fake_dv, fake_cv = self._commander.get_all_csc_versions()
+        return self._parser.parse_double_pass(desired=fake_dv, current=fake_cv)
