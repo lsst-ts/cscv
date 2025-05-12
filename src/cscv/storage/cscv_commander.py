@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from importlib.resources import files
 
-import requests
+import httpx
 from lsst_efd_client import EfdClient
 from structlog.stdlib import BoundLogger
 
@@ -21,9 +20,15 @@ class CSCVCommander(Commander):
     def __init__(self, *, logger: BoundLogger) -> None:
         super().__init__(logger=logger)
 
-    def get_all_csc_versions(self) -> tuple[str, str]:
-        url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/tickets/DM-50303/cycle/cycle.env"
-        response = requests.get(url, timeout=15)
+    async def get_versions_async(
+        self, topic_list: list[str]
+    ) -> dict[str, str]:
+        return await self._fetch_latest_versions(topic_list)
+
+    async def get_all_csc_versions(self) -> tuple[str, str]:
+        url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/tickets/DM-50726/cycle/cycle.env"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, timeout=15)
         response.raise_for_status()
         desired_versions = response.text
 
@@ -33,22 +38,11 @@ class CSCVCommander(Commander):
             .read_text()
             .splitlines()
         )
-        current_versions = {}
-
         try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-
-        if loop and loop.is_running():
-            # Schedule the coroutine to run in the background loop
-            future = asyncio.run_coroutine_threadsafe(
-                self._fetch_latest_versions(topic_list), loop
-            )
-            try:
-                current_versions = future.result(timeout=10)
-            except FuturesTimeoutError:
-                self._logger.warning("Timeout while waiting for EFD data.")
+            current_versions = await self.get_versions_async(topic_list)
+        except FuturesTimeoutError:
+            self._logger.warning("Timeout while waiting for EFD data.")
+            current_versions = {}
 
         return desired_versions, current_versions
 

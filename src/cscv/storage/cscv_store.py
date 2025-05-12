@@ -18,6 +18,6 @@ class CSCVStore(Store):
         super().__init__(logger=logger)
         self._commander = CSCVCommander(logger=logger)
 
-    def get_csc_versions(self) -> list[CSCInformation]:
-        dv, cv = self._commander.get_all_csc_versions()
+    async def get_csc_versions(self) -> list[CSCInformation]:
+        dv, cv = await self._commander.get_all_csc_versions()
         return self._parser.parse_double_pass(desired=dv, current=cv)
