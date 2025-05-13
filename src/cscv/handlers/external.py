@@ -68,7 +68,7 @@ async def csc_versions(
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
-    csc_list = service.get_csc_versions()
+    csc_list = await service.get_csc_versions()
     fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
     return CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, csc_list=csc_list
