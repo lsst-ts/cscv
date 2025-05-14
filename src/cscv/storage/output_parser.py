@@ -16,7 +16,7 @@ class OutputParser:
         self._logger = logger
 
     def parse_double_pass(
-        self, desired: str, current: str
+        self, desired: str, current: dict[str, str]
     ) -> list[CSCInformation]:
         """Parse desired/current key=value strings into CSCInformation."""
         # construct dict from current version dict
