@@ -26,7 +26,7 @@ class CSCVCommander(Commander):
         return await self._fetch_latest_versions(topic_list)
 
     async def get_all_csc_versions(self) -> tuple[str, dict[str, str]]:
-        url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/tickets/DM-50726/cycle/cycle.env"
+        url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/main/cycle/cycle.env"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, timeout=15)
         response.raise_for_status()

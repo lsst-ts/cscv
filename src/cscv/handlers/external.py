@@ -1,9 +1,11 @@
 """Handlers for the app's external root, ``/cscv/``."""
 
 import datetime
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.templating import Jinja2Templates
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
 from safir.slack.webhook import SlackRouteErrorHandler
@@ -17,6 +19,9 @@ __all__ = ["external_router"]
 
 external_router = APIRouter(route_class=SlackRouteErrorHandler)
 """FastAPI router for all external handlers."""
+templates = Jinja2Templates(
+    directory=Path(__file__).parent.parent / "templates"
+)
 
 
 @external_router.get(
@@ -63,13 +68,19 @@ async def get_saludo() -> str:
     summary="CSC versions",
 )
 async def csc_versions(
+    request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> CSCVersionsResponseModel:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
     csc_list = await service.get_csc_versions()
-    fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
-    return CSCVersionsResponseModel.from_domain(
+    fetch_datetime = datetime.datetime.now(datetime.UTC).strftime(
+        "%d-%m-%Y %H:%M"
+    )
+    csc_response = CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, csc_list=csc_list
+    )
+    return templates.TemplateResponse(
+        "csc_versions.html", {"request": request, "csc_response": csc_response}
     )
