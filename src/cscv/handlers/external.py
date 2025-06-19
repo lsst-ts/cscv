@@ -70,7 +70,7 @@ async def get_saludo() -> str:
 async def csc_versions(
     request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
-) -> CSCVersionsResponseModel:
+) -> templates.TemplateResponse:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
