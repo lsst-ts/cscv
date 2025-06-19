@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
@@ -70,7 +71,7 @@ async def get_saludo() -> str:
 async def csc_versions(
     request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
-) -> templates.TemplateResponse:
+) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
