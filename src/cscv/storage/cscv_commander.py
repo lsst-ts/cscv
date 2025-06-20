@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from importlib.resources import files
 
@@ -26,7 +27,12 @@ class CSCVCommander(Commander):
         return await self._fetch_latest_versions(topic_list)
 
     async def get_all_csc_versions(self) -> tuple[str, dict[str, str]]:
-        url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/main/cycle/cycle.env"
+        cycle_branch = os.environ["CYCLE_BRANCH"]
+        url = (
+            "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/"
+            + cycle_branch
+            + "/cycle/cycle.env"
+        )
         async with httpx.AsyncClient() as client:
             response = await client.get(url, timeout=15)
         response.raise_for_status()
@@ -47,7 +53,8 @@ class CSCVCommander(Commander):
         return desired_versions, current_versions
 
     async def _fetch_latest_versions(self, topics: list[str]) -> dict:
-        client = EfdClient("usdf_efd")
+        efd_instance = os.environ["ENV_EFD"]
+        client = EfdClient(efd_instance)
         results = {}
 
         for topic in topics:
