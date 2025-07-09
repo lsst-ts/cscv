@@ -14,10 +14,13 @@
         {% for csc in csc_response.cscs %}
         <div class="
             p-5 rounded-xl shadow-md
-            {% if csc.current_version != csc.desired_version %}
-              bg-rose-400 text-gray-900
-            {% else %}
+            {% if csc.current_version == csc.desired_version %}
               bg-emerald-300 text-gray-900
+            {% elif 'no data' in csc.current_version|lower or '?' in csc.current_version
+              or 'no data' in csc.desired_version|lower or '?' in csc.desired_version %}
+              bg-amber-200 text-gray-900
+            {% else %}
+              bg-rose-400 text-gray-900
             {% endif %}
             transition
             hover:scale-[1.01] hover:shadow-lg duration-200
@@ -29,10 +32,14 @@
           <p>
             <strong>Desired:</strong> {{ csc.desired_version }}
           </p>
-          {% if csc.current_version != csc.desired_version %}
-          <p class="mt-3 text-sm font-semibold text-red-950">🔴 Version mismatch</p>
+          {% if csc.current_version == csc.desired_version %}
+          <p class="mt-3 font-semibold text-emerald-950">✅ Up to date</p>
+          {% elif 'no data' in csc.current_version|lower or '?' in csc.current_version
+      or 'no data' in csc.desired_version|lower or '?' in csc.desired_version %}
+          <p class="mt-3 font-semibold text-amber-900">⚠️ No version found</p>
           {% else %}
-          <p class="mt-3 text-sm font-semibold text-emerald-900">✅ Up to date</p>
+          <p class="mt-3 font-semibold text-rose-950">🔴 Version mismatch</p>
+
           {% endif %}
         </div>
         {% endfor %}
