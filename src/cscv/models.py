@@ -52,7 +52,7 @@ class CSCVersions(BaseModel):
         title="Desired version",
         description="The version the CSC is supposed to run.",
     )
-    is_different: bool = Field(
+    is_same: bool = Field(
         False,
         title="Version difference.",
         description=(
@@ -70,7 +70,7 @@ class CSCVersions(BaseModel):
             index=csc_info.index,
             desired_version=csc_info.desired_version,
             current_version=csc_info.current_version,
-            is_different=csc_info.is_different(),
+            is_same=csc_info.are_versions_equal(),
         )
 
 
