@@ -8,13 +8,11 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from safir.dependencies.logger import logger_dependency
-from safir.metadata import get_metadata
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
-from ..config import config
 from ..factory import Factory
-from ..models import CSCVersionsResponseModel, Index
+from ..models import CSCVersionsResponseModel
 
 __all__ = ["external_router"]
 
@@ -27,35 +25,15 @@ templates = Jinja2Templates(
 
 @external_router.get(
     "/",
-    description=(
-        "Document the top-level API here. By default it only returns metadata"
-        " about the application."
-    ),
-    response_model_exclude_none=True,
-    summary="Application metadata",
+    description="Redirect root to CSC versions.",
+    summary="CSC versions (root)",
 )
 async def get_index(
+    request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
-) -> Index:
-    # Customize this handler to return whatever the top-level resource of your
-    # application should return. For example, consider listing key API URLs.
-    # When doing so, also change or customize the response model in
-    # cscv.models.Index.
-    #
-    # By convention, the root of the external API includes a field called
-    # metadata that provides the same Safir-generated metadata as the internal
-    # root endpoint.
-
-    # There is no need to log simple requests since uvicorn will do this
-    # automatically, but this is included as an example of how to use the
-    # logger for more complex logging.
-    logger.info("Request for application metadata")
-
-    metadata = get_metadata(
-        package_name="cscv",
-        application_name=config.name,
-    )
-    return Index(metadata=metadata)
+) -> Response:
+    """Handle `/` by reusing the `/csc_versions` handler logic."""
+    return await csc_versions(request, logger)
 
 
 @external_router.get("/hola", summary="Saludo buena tela :)")
@@ -80,7 +58,7 @@ async def csc_versions(
         "%d-%m-%Y %H:%M"
     )
     csc_response = CSCVersionsResponseModel.from_domain(
-        fetch_datetime=fetch_datetime, csc_list=csc_list
+        fetch_datetime=fetch_datetime, cscs=csc_list
     )
     return templates.TemplateResponse(
         "csc_versions.html", {"request": request, "csc_response": csc_response}

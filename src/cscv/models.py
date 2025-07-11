@@ -1,5 +1,6 @@
 """Models for cscv."""
 
+from collections import defaultdict
 from typing import Self
 
 from pydantic import BaseModel, Field
@@ -86,18 +87,20 @@ class CSCVersionsResponseModel(BaseModel):
         ),
     )
 
-    cscs: list[CSCVersions] = Field(
-        default_factory=list,
-        title="CSC list",
-        description="List of CSC version information objects.",
+    cscs: dict[str, list[CSCVersions]] = Field(
+        default_factory=dict,
+        title="CSC list grouped by namespace",
+        description="Dict of CSCVersions grouped by namespace.",
     )
 
     @classmethod
     def from_domain(
-        cls, *, fetch_datetime: str, csc_list: list[CSCInformation]
+        cls, *, fetch_datetime: str, cscs: list[CSCInformation]
     ) -> Self:
         """Construct the list of CSCVersions from the CSCInformation."""
-        cscs = [
-            CSCVersions.from_domain(csc_info=csc_info) for csc_info in csc_list
-        ]
-        return cls(fetch_datetime=fetch_datetime, cscs=cscs)
+        grouped_cscs = defaultdict(list)
+        for csc in cscs:
+            cscv = CSCVersions.from_domain(csc_info=csc)
+            grouped_cscs[csc.namespace].append(cscv)
+
+        return cls(fetch_datetime=fetch_datetime, cscs=grouped_cscs)
