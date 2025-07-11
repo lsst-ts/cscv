@@ -34,11 +34,16 @@ class OutputParser:
 
         for item in current:
             package = item["package"]
+            name = item["topic"].split(".")[2]
             if package in desired_versions:
-                item["desired"] = desired_versions[package]
+                desired = desired_versions[package]
+                item["desired"] = desired
+                if name in {"MTCamera", "ATCamera", "CCCamera"}:
+                    camera_version = f"{int(desired.lstrip('c0'))}.0.0"
+                    item["desired"] = camera_version
 
             csc = CSCInformation(
-                name=item["topic"].split(".")[2],
+                name=name,
                 namespace=item["namespace"],
                 index=item["index"],
                 desired_version=item["desired"],
