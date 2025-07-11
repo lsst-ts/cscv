@@ -9,7 +9,6 @@ from importlib.resources import files
 
 import httpx
 import pandas as pd
-import yaml
 from lsst_efd_client import EfdClient
 from structlog.stdlib import BoundLogger
 
@@ -26,41 +25,6 @@ class CSCVCommander(Commander):
 
     async def get_current_versions_async(self) -> list[dict[str, str]]:
         return await self._fetch_latest_versions()
-
-    async def get_deployed_cscs(self) -> dict:
-        """Get the deployed CSCs from the phalanx."""
-        base_url = "https://raw.githubusercontent.com/lsst-sqre/phalanx/refs/heads/main/applications/"
-        namespaces = [
-            "auxtel",
-            "calsys",
-            "envsys",
-            "obssys",
-            "simonyitel",
-            "uws",
-        ]
-        site = os.environ["LSST_SITE"]
-        deployed_in_namespace = {}
-        async with httpx.AsyncClient() as client:
-            for namespace in namespaces:
-                url = f"{base_url}{namespace}/values-{site}.yaml"
-                try:
-                    response = await client.get(url, timeout=15)
-                    response.raise_for_status()
-                except httpx.HTTPStatusError as e:
-                    if e.response.status_code == 404:
-                        self._logger.warning(
-                            f"cscs.yaml not found for namespace '{namespace}',"
-                            " trying next namespace.",
-                            error=str(e),
-                        )
-                        continue
-                else:
-                    data = yaml.safe_load(response.text)
-                    deployed_cscs = [
-                        n for n, c in data.items() if "image" in c
-                    ]
-                    deployed_in_namespace[namespace] = deployed_cscs
-        return deployed_in_namespace
 
     async def get_desired_versions_async(self) -> str:
         """Get the desired versions from the cycle.env file.
