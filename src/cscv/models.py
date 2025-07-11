@@ -32,6 +32,16 @@ class CSCVersions(BaseModel):
     """CSC version information."""
 
     name: str = Field(..., title="CSC name", description="Name of the CSC.")
+    namespace: str = Field(
+        ...,
+        title="Namespace",
+        description="The namespace of the T&S application the CSC belongs to.",
+    )
+    index: int = Field(
+        ...,
+        title="Index",
+        description="The index of the CSC within the namespace.",
+    )
     current_version: str = Field(
         ...,
         title="Current version",
@@ -56,6 +66,8 @@ class CSCVersions(BaseModel):
         """Construct the CSCVersion model from the CSC information."""
         return cls(
             name=csc_info.name,
+            namespace=csc_info.namespace,
+            index=csc_info.index,
             desired_version=csc_info.desired_version,
             current_version=csc_info.current_version,
             is_different=csc_info.is_different(),

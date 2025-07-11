@@ -16,30 +16,34 @@ class OutputParser:
         self._logger = logger
 
     def parse_double_pass(
-        self, desired: str, current: dict[str, str]
+        self, desired: str, current: list[dict[str, str]]
     ) -> list[CSCInformation]:
         """Parse desired/current key=value strings into CSCInformation."""
-        # construct dict from current version dict
-        cscv_dict = {
-            key.split(".")[2].lower(): [value, "no data"]
-            for key, value in current.items()
-        }
-        # update dict with desired versions
+        results = []
+        desired_versions = {}
+
         for line in desired.strip().splitlines():
             line_clean = line.strip()
             if not line_clean or line_clean.startswith("#"):
                 continue
             if "=" in line_clean:
                 key, value = line_clean.split("=", maxsplit=1)
-                key = key.split("ts_")[-1]
-                if key in cscv_dict:
-                    cscv_dict[key][1] = value
+                key = key.strip()
+                value = value.strip()
+                desired_versions[key] = value
 
-        return [
-            CSCInformation(
-                name=k,
-                desired_version=cscv_dict[k][1],
-                current_version=cscv_dict[k][0],
+        for item in current:
+            package = item["package"]
+            if package in desired_versions:
+                item["desired"] = desired_versions[package]
+
+            csc = CSCInformation(
+                name=item["topic"].split(".")[2],
+                namespace=item["namespace"],
+                index=item["index"],
+                desired_version=item["desired"],
+                current_version=item["current"],
             )
-            for k in cscv_dict
-        ]
+            results.append(csc)
+
+        return results
