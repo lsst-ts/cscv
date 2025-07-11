@@ -45,7 +45,9 @@ class OutputParser:
             csc = CSCInformation(
                 name=name,
                 namespace=item["namespace"],
+
                 index=int(item["index"]),
+
                 desired_version=item["desired"],
                 current_version=item["current"],
             )
