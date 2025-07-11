@@ -5,18 +5,12 @@ from __future__ import annotations
 import pytest
 from httpx import AsyncClient
 
-from cscv.config import config
-
 
 @pytest.mark.asyncio
 async def test_get_index(client: AsyncClient) -> None:
-    """Test ``GET /cscv/``."""
+    """Test ``GET /cscv/`` returns HTML."""
     response = await client.get("/cscv/")
     assert response.status_code == 200
-    data = response.json()
-    metadata = data["metadata"]
-    assert metadata["name"] == config.name
-    assert isinstance(metadata["version"], str)
-    assert isinstance(metadata["description"], str)
-    assert isinstance(metadata["repository_url"], str)
-    assert isinstance(metadata["documentation_url"], str)
+    assert response.headers["content-type"].startswith("text/html")
+    # Check for a string that is present in the template
+    assert "CSC Versions Dashboard" in response.text
