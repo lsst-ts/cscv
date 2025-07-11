@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from packaging import version
+
 __all__ = ["CSCInformation"]
 
 
@@ -26,5 +28,11 @@ class CSCInformation:
     desired_version: str
     """The the CSC is supposed to be running."""
 
-    def is_different(self) -> bool:
-        return self.current_version != self.desired_version
+    def are_versions_equal(self) -> bool:
+        # Normalize and compare
+        try:
+            return version.parse(self.current_version) == version.parse(
+                self.desired_version
+            )
+        except version.InvalidVersion:
+            return False
