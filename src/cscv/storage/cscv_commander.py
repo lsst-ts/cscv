@@ -74,7 +74,8 @@ class CSCVCommander(Commander):
         return desired_versions, current_versions
 
     async def _fetch_latest_versions(self) -> list[dict[str, str]]:
-        results = []
+        results: list[dict[str, str]] = []
+
         try:
             efd_instance = os.environ["ENV_EFD"]
             topic_file = f"{efd_instance}_topic_list.csv"

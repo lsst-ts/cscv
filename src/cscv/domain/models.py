@@ -19,7 +19,7 @@ class CSCInformation:
     namespace: str
     """Name of the T&S namespace the CSC belongs to."""
 
-    index: str
+    index: int
     """Index of the CSC."""
 
     current_version: str

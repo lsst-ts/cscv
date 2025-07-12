@@ -16,4 +16,6 @@ class Commander(ABC):
         self._logger = logger
 
     @abstractmethod
-    async def get_all_csc_versions(self) -> tuple[str, dict[str, str]]: ...
+    async def get_all_csc_versions(
+        self,
+    ) -> tuple[str, list[dict[str, str]]]: ...
