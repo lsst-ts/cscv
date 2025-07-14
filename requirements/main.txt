@@ -174,9 +174,9 @@ astropy==7.1.0 \
     --hash=sha256:f637e39622b23750a12b19ab4642f2e3970f6cb84f2228587725f15bf1d80d03 \
     --hash=sha256:fba97e3d99ad48540b6eb7c6f7849e57dd6aaf9d9d48707b227bf39ac77c6368
     # via lsst-efd-client
-astropy-iers-data==0.2025.7.7.0.39.39 \
-    --hash=sha256:770221844e56c4cafba8c65659438bde5c96041d246dc4eb13cbc63890e33299 \
-    --hash=sha256:e29bf3e16816a92282a39edd587150296047b7b08ac6b8048b429a7d1ef1c386
+astropy-iers-data==0.2025.7.14.0.40.29 \
+    --hash=sha256:2d2446eda1bb26a92b9235b67cee584f86e02afec27ad7a0edfc296e891dd820 \
+    --hash=sha256:f5080ce17297328946deb11974a4eb0afdcba098764e622164f1acb9a796700a
     # via astropy
 async-timeout==5.0.1 \
     --hash=sha256:39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c \
@@ -216,9 +216,9 @@ casefy==1.0.0 \
     --hash=sha256:bc99428475c2089c5f6a21297b4cfe4e83dff132cf3bb06655ddcb90632af1ed \
     --hash=sha256:c89f96fb0fbd13691073b7a65c1e668e81453247d647479a3db105e86d7b0df9
     # via dataclasses-avroschema
-certifi==2025.7.9 \
-    --hash=sha256:c1d2ec05395148ee10cf672ffc28cd37ea0ab0d99f9cc74c43e588cbd111b079 \
-    --hash=sha256:d842783a14f8fdd646895ac26f719a061408834473cfc10203f6a575beb15d39
+certifi==2025.7.14 \
+    --hash=sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2 \
+    --hash=sha256:8ea99dbdfaaf2ba2f9bac77b9249ef62ec5218e7c2b2e903378ed5fccf765995
     # via
     #   httpcore
     #   httpx
@@ -548,9 +548,9 @@ fastavro==1.11.1 \
     #   dataclasses-avroschema
     #   kafkit
     #   python-schema-registry-client
-faststream==0.5.45 \
-    --hash=sha256:6c13fc92bd4557b47b87903e0a16c889d0961206eae4a4cd561f552fc0663ed3 \
-    --hash=sha256:9d336ace81d77751ff38eac890ec0c5783bcacca73660d5ec9e041649507615d
+faststream==0.5.47 \
+    --hash=sha256:21e630ce8baa4d4507433ace11004d737ee2f02f41e60f2ff2e55280060d966c \
+    --hash=sha256:a2665423ae944b89f3c22533a31e384ed806c9f2135732a1ebe42049379553f3
     # via safir
 frozenlist==1.7.0 \
     --hash=sha256:04fb24d104f425da3540ed83cbfc31388a586a7696142004c577fa61c6298c3f \
