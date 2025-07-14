@@ -54,9 +54,7 @@ async def csc_versions(
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
     csc_list = await service.get_csc_versions()
-    fetch_datetime = datetime.datetime.now(datetime.UTC).strftime(
-        "%d-%m-%Y %H:%M"
-    )
+    fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
     csc_response = CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, cscs=csc_list
     )
