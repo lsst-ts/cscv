@@ -33,7 +33,9 @@ async def get_index(
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> Response:
     """Handle `/` by reusing the `/csc_versions` handler logic."""
-    return await csc_versions(request, logger)
+    return templates.TemplateResponse(
+        "csc_versions.html", {"request": request}
+    )
 
 
 @external_router.get("/hola", summary="Saludo buena tela :)")
@@ -59,5 +61,5 @@ async def csc_versions(
         fetch_datetime=fetch_datetime, cscs=csc_list
     )
     return templates.TemplateResponse(
-        "csc_versions.html", {"request": request, "csc_response": csc_response}
+        "data.html", {"request": request, "csc_response": csc_response}
     )
