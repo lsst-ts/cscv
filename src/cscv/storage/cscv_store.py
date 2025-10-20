@@ -19,11 +19,6 @@ class CSCVStore(Store):
         super().__init__(logger=logger)
         self._commander = CSCVCommander(repo=repo, logger=logger)
 
-    async def get_repo_branches(self) -> list[str]:
-        return await self._commander.repo.list_branches()
-
-    async def get_csc_versions(
-        self, branch: str
-    ) -> tuple[list[str], list[CSCInformation]]:
-        dv, cv = await self._commander.get_all_csc_versions(branch)
-        return self._parser.parse_double_pass(desired=dv, current=cv)
+    async def get_csc_versions(self) -> tuple[list[str], list[CSCInformation]]:
+        dv, cv, branches = await self._commander.get_all_csc_versions()
+        return branches, self._parser.parse_double_pass(desired=dv, current=cv)
