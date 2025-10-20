@@ -26,16 +26,19 @@ class CSCVCommander(Commander):
     async def get_current_versions_async(self) -> list[dict[str, str]]:
         return await self._fetch_latest_versions()
 
-    async def get_desired_versions_async(self) -> str:
+    async def get_desired_versions_async(self) -> tuple[str, list[str]]:
         """Get the desired versions from the cycle.env file.
 
         Tries the branch from CYCLE_BRANCH first, falls back to 'main'.
         """
         base_url = "https://raw.githubusercontent.com/lsst-ts/ts_cycle_build/refs/heads/"
-        cycle_branch = os.environ["CYCLE_BRANCH"]
-        branches_to_try = [cycle_branch, "main"]
+        branch_url = (
+            "https://api.github.com/repos/lsst-ts/ts_cycle_build/branches"
+        )
 
         async with httpx.AsyncClient() as client:
+            branches = await client.get(branch_url, timeout=5)
+            branches_to_try = [b["name"] for b in branches.json()]
             for branch in branches_to_try:
                 url = f"{base_url}{branch}/cycle/cycle.env"
                 try:
@@ -51,16 +54,21 @@ class CSCVCommander(Commander):
                         continue  # Try main branch
                     raise
                 else:
-                    return response.text
+                    return response.text, branches_to_try
             # If neither branch worked
             raise RuntimeError("Unable to fetch cycle.env from any branch.")
 
-    async def get_all_csc_versions(self) -> tuple[str, list[dict[str, str]]]:
+    async def get_all_csc_versions(
+        self,
+    ) -> tuple[str, list[dict[str, str]], list[str]]:
         """Get the desired and current CSC versions."""
         current_versions = []
         desired_versions = ""
         try:
-            desired_versions = await self.get_desired_versions_async()
+            (
+                desired_versions,
+                available_branches,
+            ) = await self.get_desired_versions_async()
         except httpx.HTTPError as e:
             self._logger.exception(
                 "Failed to fetch desired versions from cycle.env",
@@ -71,7 +79,7 @@ class CSCVCommander(Commander):
         except FuturesTimeoutError:
             self._logger.warning("Timeout while waiting for EFD data.")
 
-        return desired_versions, current_versions
+        return desired_versions, current_versions, available_branches
 
     async def _fetch_latest_versions(self) -> list[dict[str, str]]:
         results: list[dict[str, str]] = []
