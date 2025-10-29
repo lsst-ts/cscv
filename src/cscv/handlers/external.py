@@ -51,9 +51,7 @@ async def get_saludo() -> str:
 async def csc_versions(
     request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
-    branch: Annotated[
-        str, Query(default="main", description="Git branch name")
-    ],
+    branch: Annotated[str, Query(description="Git branch name")] = "main",
 ) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
