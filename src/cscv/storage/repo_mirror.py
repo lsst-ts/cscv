@@ -24,17 +24,12 @@ class RepoMirror:
     def __init__(
         self,
         repo_url: str = "https://github.com/lsst-ts/ts_cycle_build.git",
-        mirror_dir: str | None = None,
+        mirror_dir: str = os.getenv("REPO_DIR"),
         file_path: str = "cycle/cycle.env",
-        fetch_min_interval_sec: int = 0,
+        fetch_min_interval_sec: int = 60,
         logger: BoundLogger = None,
     ) -> None:
-        if mirror_dir is None:
-            mirror_dir = os.getenv(
-                "REPO_DIR", "~/.cache/ts_cycle_build/ts_cycle_build.git"
-            )
-        expanded = os.path.expandvars(mirror_dir)
-        self.mirror_dir = Path(expanded).expanduser().resolve()
+        mirror_dir = os.path.expandvars(Path.expanduser(mirror_dir))
         self.repo_url = repo_url
         self.mirror_dir = mirror_dir
         self.file_path = file_path
@@ -47,8 +42,10 @@ class RepoMirror:
         """Return the names of all remote branches."""
         repo = await self._ensure_mirror()
         await self._fetch_all()
-        repo_heads = repo.heads
-        return [h.name for h in repo_heads]
+        branches = [
+            ref.name.split("origin/")[1] for ref in repo.remotes.origin.refs
+        ]
+        return sorted(branches)
 
     async def show_from_ref(self, ref: str) -> str | None:
         await self._ensure_mirror()
