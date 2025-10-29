@@ -21,7 +21,6 @@ class OutputParser:
         """Parse desired/current key=value strings into CSCInformation."""
         results = []
         desired_versions = {}
-
         for line in desired.strip().splitlines():
             line_clean = line.strip()
             if not line_clean or line_clean.startswith("#"):
@@ -50,5 +49,4 @@ class OutputParser:
                 current_version=item["current"],
             )
             results.append(csc)
-
         return results

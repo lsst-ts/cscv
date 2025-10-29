@@ -4,6 +4,7 @@ from structlog.stdlib import BoundLogger
 
 from .services.cscv_service import CSCVService
 from .storage.cscv_store import CSCVStore
+from .storage.repo_mirror import RepoMirror
 from .storage.store import Store
 
 
@@ -12,6 +13,9 @@ class Factory:
 
     def __init__(self, *, logger: BoundLogger) -> None:
         self.logger = logger
+
+    def create_repo_mirror(self) -> RepoMirror:
+        return RepoMirror(logger=self.logger)
 
     def create_cscv_service(self) -> CSCVService:
         """Create a cscv service."""
@@ -22,4 +26,4 @@ class Factory:
     def create_cscv_store(self) -> Store:
         """Create a cscv store."""
         """Create an obsenv store."""
-        return CSCVStore(logger=self.logger)
+        return CSCVStore(logger=self.logger, repo=self.create_repo_mirror())

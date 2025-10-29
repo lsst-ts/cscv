@@ -4,7 +4,7 @@ import datetime
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from safir.dependencies.logger import logger_dependency
@@ -51,11 +51,14 @@ async def get_saludo() -> str:
 async def csc_versions(
     request: Request,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    branch: Annotated[
+        str, Query(default="main", description="Git branch name")
+    ],
 ) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
     service = factory.create_cscv_service()
-    branches, csc_list = await service.get_csc_versions()
+    csc_list = await service.get_csc_versions(branch)
     fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
     csc_response = CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, cscs=csc_list
@@ -65,6 +68,5 @@ async def csc_versions(
         {
             "request": request,
             "csc_response": csc_response,
-            "branches": branches,
         },
     )

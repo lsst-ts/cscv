@@ -1,6 +1,6 @@
 <p class="text-lg text-white mb-8">Fetched at: {{ csc_response.fetch_datetime }}</p>
 
-{% set first_branch = branches[0] if branches else '—' %}
+<!-- {% set first_branch = branches[0] if branches else '—' %}
 
 <details id="branchSelect" class="relative inline-block w-64 mb-2">
   <summary
@@ -30,15 +30,15 @@
       </button>
     {% endfor %}
   </div>
-</details>
+</details> -->
 
-<script>
+<!-- <script>
 function selectBranch(branch) {
   document.getElementById('branchLabel').textContent = branch;
   // close dropdown
   document.getElementById('branchSelect').removeAttribute('open');
 }
-</script>
+</script> -->
 
 
 {% for namespace, cscs in csc_response.cscs.items() %}
