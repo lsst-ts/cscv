@@ -4,14 +4,11 @@ import datetime
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
-from safir.dependencies.logger import logger_dependency
 from safir.slack.webhook import SlackRouteErrorHandler
-from structlog.stdlib import BoundLogger
 
-from ..factory import Factory
 from ..models import CSCVersionsResponseModel
 
 __all__ = ["external_router"]
@@ -30,7 +27,6 @@ templates = Jinja2Templates(
 )
 async def get_index(
     request: Request,
-    logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> Response:
     """Handle `/` by reusing the `/csc_versions` handler logic."""
     return templates.TemplateResponse(
@@ -38,9 +34,13 @@ async def get_index(
     )
 
 
-@external_router.get("/hola", summary="Saludo buena tela :)")
-async def get_saludo() -> str:
-    return "holaaa!"
+@external_router.get("/branches")
+async def repo_branches(
+    request: Request,
+) -> dict[str, list[str]]:
+    service = request.app.state.cscv_service
+    branches = await service.get_repo_branches()
+    return {"branches": branches}
 
 
 @external_router.get(
@@ -50,16 +50,19 @@ async def get_saludo() -> str:
 )
 async def csc_versions(
     request: Request,
-    logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    branch: Annotated[str, Query(description="Git branch name")] = "main",
 ) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
-    factory = Factory(logger=logger)
-    service = factory.create_cscv_service()
-    csc_list = await service.get_csc_versions()
+    service = request.app.state.cscv_service
+    csc_list = await service.get_csc_versions(branch)
     fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
     csc_response = CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, cscs=csc_list
     )
     return templates.TemplateResponse(
-        "data.html", {"request": request, "csc_response": csc_response}
+        "data.html",
+        {
+            "request": request,
+            "csc_response": csc_response,
+        },
     )
