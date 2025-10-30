@@ -4,7 +4,7 @@ import datetime as dt
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from safir.slack.webhook import SlackRouteErrorHandler
@@ -48,10 +48,7 @@ async def repo_branches(
 )
 async def csc_versions(
     request: Request,
-    logger: Annotated[BoundLogger, Depends(logger_dependency)],
-    branch: Annotated[
-        str, Query(default="main", description="Git branch name")
-    ],
+    branch: Annotated[str, Query(description="Git branch name")] = "main",
 ) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
     factory = Factory(logger=logger)
