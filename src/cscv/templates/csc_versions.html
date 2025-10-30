@@ -5,47 +5,127 @@
     <title>CSC Versions Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"></script>
-      <style>
-
-    body {
-      text-align: center;
-    }
-    .spinner {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #50A9E0;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+    <style>
+      body { text-align: center; }
+      .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #50A9E0;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
+
   <body class="bg-gray-900 text-gray-100 p-6 font-sans min-h-screen">
     <div class="max-w-6xl mx-auto">
       <h1 class="text-4xl font-bold text-white mt-3 mb-8">CSC Versions Dashboard</h1>
-        <div id="content">
+
+      <!-- dropdown -->
+      <div id="controls" class="flex items-center justify-center gap-3 mb-4"></div>
+
+      <!-- main content(spinner until data loads) -->
+      <div id="content">
+        <div class="mb-10 p-6 rounded-2xl bg-gray-700 shadow-inner">
+          <div class="spinner"></div>
+          <p class="text-2xl font-bold text-white mb-4">loading…</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const BRANCHES_URL = "{{ request.url_for('repo_branches') }}";
+      const CSC_VERSIONS_URL = "{{ request.url_for('csc_versions') }}";
+
+      const controlsEl = document.getElementById("controls");
+      const contentEl  = document.getElementById("content");
+      let selectEl;
+
+      async function fetchBranches() {
+        const res = await fetch(BRANCHES_URL);
+        if (!res.ok) throw new Error(await res.text());
+        const { branches } = await res.json();
+        return branches || [];
+      }
+
+      function renderDropdown(branches, initial = "main") {
+        const label = document.createElement("label");
+        label.className = "text-white text-lg";
+        label.textContent = "Branch:";
+
+        selectEl = document.createElement("select");
+        selectEl.className = "bg-gray-800 text-gray-100 border border-white/10 rounded px-3 py-2";
+        selectEl.disabled = true;
+
+        const ordered = ["main", ...branches.filter(b => b !== "main")];
+
+        for (const b of ordered) {
+          const opt = document.createElement("option");
+          opt.value = b;
+          opt.textContent = b;
+          selectEl.appendChild(opt);
+        }
+
+        if (ordered.includes(initial)) {
+          selectEl.value = initial;
+        }
+
+        selectEl.addEventListener("change", async (e) => {
+          const branch = e.target.value;
+          showLoading(branch);
+          try {
+            await loadPartialForBranch(branch);
+          } catch (err) {
+            showError(`Error loading ${branch}: ${String(err)}`);
+          }
+        });
+
+        controlsEl.innerHTML = "";
+        controlsEl.appendChild(label);
+        controlsEl.appendChild(selectEl);
+
+        return selectEl.value;
+      }
+
+      function showLoading(branch) {
+        contentEl.innerHTML = `
           <div class="mb-10 p-6 rounded-2xl bg-gray-700 shadow-inner">
             <div class="spinner"></div>
-            <p class="text-2xl font-bold text-white mb-4"> loading...</p>
-          </div >
-        </div>
-        <script>
-          fetch("{{ request.url_for('csc_versions') }}")
-            .then(response => response.text())
-            .then(html => {
-              // Replace the loading message with actual content
-              document.getElementById("content").innerHTML = html;
-            })
-            .catch(err => {
-              document.getElementById("content").innerHTML = `<p>Error loading data: ${err}</p>`;
-            });
-        </script>
-    </div>
+            <p class="text-2xl font-bold text-white mb-4">loading ${branch ?? ""}…</p>
+          </div>
+        `;
+      }
+
+      function showError(msg) {
+        contentEl.innerHTML = `<p class="text-red-400">${msg}</p>`;
+      }
+
+      async function loadPartialForBranch(branch) {
+        const url = CSC_VERSIONS_URL + "?branch=" + encodeURIComponent(branch);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(await res.text());
+        const html = await res.text();
+        contentEl.innerHTML = html;
+      }
+
+      (async function init() {
+        try {
+          showLoading();
+          const branches = await fetchBranches();
+          const initial = branches.includes("main") ? "main" : (branches[0] || "main");
+          const selected = renderDropdown(branches, initial);
+          await loadPartialForBranch(selected);
+          if (selectEl) selectEl.disabled = false;
+        } catch (err) {
+          showError(`Error initializing page: ${String(err)}`);
+        }
+      })();
+    </script>
   </body>
 </html>

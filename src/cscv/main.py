@@ -19,6 +19,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 from safir.slack.webhook import SlackRouteErrorHandler
 
 from .config import config
+from .factory import Factory
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 
@@ -29,6 +30,9 @@ __all__ = ["app"]
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Set up and tear down the application."""
     # Any code here will be run when the application starts up.
+    logger = structlog.get_logger("cscv")
+    factory = Factory(logger=logger)
+    app.state.cscv_service = factory.create_cscv_service()
 
     yield
 

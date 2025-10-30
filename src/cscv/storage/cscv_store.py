@@ -19,6 +19,9 @@ class CSCVStore(Store):
         super().__init__(logger=logger)
         self._commander = CSCVCommander(repo=repo, logger=logger)
 
+    async def get_repo_branches(self) -> list[str]:
+        return await self._commander.repo.list_branches()
+
     async def get_csc_versions(
         self, branch: str
     ) -> tuple[list[str], list[CSCInformation]]:
