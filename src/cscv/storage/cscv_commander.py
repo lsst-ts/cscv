@@ -79,6 +79,14 @@ class CSCVCommander(Commander):
                 index_list = ast.literal_eval(row["index"])
                 for index in index_list:
                     index_int = int(index)
+                    item = {
+                        "topic": topic,
+                        "package": package,
+                        "namespace": namespace,
+                        "index": index,
+                        "current": "no data",
+                        "desired": "no data",
+                    }
                     try:
                         query_results = await client.select_top_n(
                             topic_name=topic,
@@ -86,24 +94,23 @@ class CSCVCommander(Commander):
                             num=1,
                             index=index_int,
                         )
-                        item = {
-                            "topic": topic,
-                            "package": package,
-                            "namespace": namespace,
-                            "index": index,
-                            "current": "no data",
-                            "desired": "no data",
-                        }
-                        if not query_results.empty:
-                            value = query_results.iloc[
-                                0, 0
-                            ]  # First row, first column
-                            item["current"] = value
-                        results.append(item)
+                    except ValueError as e:
+                        if "not in EFD schema" not in str(e):
+                            raise
+                        self._logger.warning(
+                            "Topic not found in EFD schema.",
+                            topic=topic,
+                            index=index,
+                        )
                     except Exception as e:
                         self._logger.exception(
                             f"Error fetching data for topic {topic}"
                             "at index {index}",
                             error=str(e),
                         )
+                    else:
+                        if not query_results.empty:
+                            item["current"] = query_results.iloc[0, 0]
+                    results.append(item)
+
             return results
