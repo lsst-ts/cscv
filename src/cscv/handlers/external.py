@@ -1,6 +1,6 @@
 """Handlers for the app's external root, ``/cscv/``."""
 
-import datetime
+import datetime as dt
 from pathlib import Path
 from typing import Annotated
 
@@ -29,9 +29,7 @@ async def get_index(
     request: Request,
 ) -> Response:
     """Handle `/` by reusing the `/csc_versions` handler logic."""
-    return templates.TemplateResponse(
-        "csc_versions.html", {"request": request}
-    )
+    return templates.TemplateResponse(request, "csc_versions.html")
 
 
 @external_router.get("/branches")
@@ -53,16 +51,13 @@ async def csc_versions(
     branch: Annotated[str, Query(description="Git branch name")] = "main",
 ) -> Response:
     """GET `/cscv/csc_versions` endpoint."""
-    service = request.app.state.cscv_service
-    csc_list = await service.get_csc_versions(branch)
-    fetch_datetime = datetime.datetime.now(datetime.UTC).isoformat()
+    factory = Factory(logger=logger)
+    service = factory.create_cscv_service()
+    csc_list = await service.get_csc_versions()
+    fetch_datetime = dt.datetime.now(dt.UTC).isoformat()
     csc_response = CSCVersionsResponseModel.from_domain(
         fetch_datetime=fetch_datetime, cscs=csc_list
     )
     return templates.TemplateResponse(
-        "data.html",
-        {
-            "request": request,
-            "csc_response": csc_response,
-        },
+        request, "data.html", {"csc_response": csc_response}
     )
