@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-v0.4.0.'></a>
+## v0.4.0. (2026-10-30)
+
+### New features
+
+- Added dropdown to select ts_cycle_build branch to read cycle.env from.
+
 <a id='changelog-v0.3.1'></a>
 ## v0.3.1 (2026-10-28)
 
