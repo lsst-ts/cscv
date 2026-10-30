@@ -21,3 +21,6 @@ class Store(ABC):
 
     @abstractmethod
     async def get_csc_versions(self, branch: str) -> list[CSCInformation]: ...
+
+    @abstractmethod
+    async def get_repo_branches(self) -> list[str]: ...

@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+import structlog
 from git import GitCommandError, Repo
 from structlog.stdlib import BoundLogger
 
@@ -24,10 +25,10 @@ class RepoMirror:
     def __init__(
         self,
         repo_url: str = "https://github.com/lsst-ts/ts_cycle_build.git",
-        mirror_dir: str = os.getenv("REPO_DIR"),
+        mirror_dir: str | None = None,
         file_path: str = "cycle/cycle.env",
         fetch_min_interval_sec: int = 0,
-        logger: BoundLogger = None,
+        logger: BoundLogger | None = None,
     ) -> None:
         if mirror_dir is None:
             mirror_dir = os.getenv(
@@ -40,7 +41,7 @@ class RepoMirror:
         self._repo: Repo | None = None
         self._last_fetch_ts: float = 0.0
         self.fetch_min_interval_sec = fetch_min_interval_sec
-        self._logger = logger
+        self._logger: BoundLogger = logger or structlog.get_logger(__name__)
 
     async def list_branches(self) -> list[str]:
         """Return the names of all remote branches."""
@@ -50,11 +51,11 @@ class RepoMirror:
         return [h.name for h in repo_heads]
 
     async def show_from_ref(self, ref: str) -> str | None:
-        await self._ensure_mirror()
+        repo = await self._ensure_mirror()
 
         def _show() -> str | None:
             try:
-                return self._repo.git.show(f"{ref}:{self.file_path}")
+                return repo.git.show(f"{ref}:{self.file_path}")
             except GitCommandError:
                 return None
 
@@ -82,7 +83,7 @@ class RepoMirror:
 
     async def _fetch_all(self) -> None:
         """Update refs; throttled by fetch_min_interval_sec if set."""
-        await self._ensure_mirror()
+        repo = await self._ensure_mirror()
         now = time.time()
         if (
             self.fetch_min_interval_sec
@@ -90,7 +91,5 @@ class RepoMirror:
         ):
             return
         self._logger.debug("Fetching mirror refs (prune + tags)")
-        await self._to_thread(
-            self._repo.remotes.origin.fetch, prune=True, tags=True
-        )
+        await self._to_thread(repo.remotes.origin.fetch, prune=True, tags=True)
         self._last_fetch_ts = now

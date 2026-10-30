@@ -27,7 +27,7 @@ class CSCVCommander(Commander):
     async def get_current_versions_async(self) -> list[dict[str, str]]:
         return await self._fetch_latest_versions()
 
-    async def get_desired_versions_async(self, branch: str) -> str:
+    async def get_desired_versions_async(self, branch: str) -> str | None:
         """Get the desired versions from the cycle.env file."""
         response = None
         try:
@@ -43,7 +43,9 @@ class CSCVCommander(Commander):
         current_versions = []
         desired_versions = ""
         try:
-            desired_versions = await self.get_desired_versions_async(branch)
+            desired_versions = (
+                await self.get_desired_versions_async(branch) or ""
+            )
         except Exception as e:
             self._logger.exception(
                 "Failed to fetch desired versions from cycle.env",
