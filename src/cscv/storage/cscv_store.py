@@ -22,8 +22,6 @@ class CSCVStore(Store):
     async def get_repo_branches(self) -> list[str]:
         return await self._commander.repo.list_branches()
 
-    async def get_csc_versions(
-        self, branch: str
-    ) -> tuple[list[str], list[CSCInformation]]:
+    async def get_csc_versions(self, branch: str) -> list[CSCInformation]:
         dv, cv = await self._commander.get_all_csc_versions(branch)
         return self._parser.parse_double_pass(desired=dv, current=cv)
