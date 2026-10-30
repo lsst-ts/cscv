@@ -17,5 +17,5 @@ class Commander(ABC):
 
     @abstractmethod
     async def get_all_csc_versions(
-        self,
+        self, branch: str
     ) -> tuple[str, list[dict[str, str]]]: ...

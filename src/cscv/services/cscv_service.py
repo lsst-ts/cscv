@@ -23,6 +23,10 @@ class CSCVService:
         self._logger = logger
         self._cscv_store = cscv_store
 
-    async def get_csc_versions(self) -> list[CSCInformation]:
+    async def get_repo_branches(self) -> list[str]:
+        self._logger.info("Retrive branches from ts_cycle_build repo.")
+        return await self._cscv_store.get_repo_branches()
+
+    async def get_csc_versions(self, branch: str) -> list[CSCInformation]:
         self._logger.info("Retrive CSC versions from store.")
-        return await self._cscv_store.get_csc_versions()
+        return await self._cscv_store.get_csc_versions(branch)
